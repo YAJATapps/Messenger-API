@@ -13,13 +13,7 @@ appDb = mysql.connector.connect(
     database=os.environ['DB_NAME']
 )
 
-
-@app.get('/')
-async def home():
-    return 'Invalid'
-
-
-@app.post('/api/v1/messenger/users/add')
+@app.post('/messenger/api/v1/users/add')
 async def add_user(user: str = None, pwd: str = None):
     # Add a new user to UsersAuth database with passed username and sha256 encrypted password
 
@@ -42,7 +36,7 @@ async def add_user(user: str = None, pwd: str = None):
         return 'addedUser'
 
 
-@app.post('/api/v1/messenger/users/user')
+@app.post('/messenger/api/v1/users/user')
 async def valid_username(user: str = None):
     # Returns true if user exists
 
@@ -59,7 +53,7 @@ async def valid_username(user: str = None):
     return result != None
 
 
-@app.post('/api/v1/messenger/users/login')
+@app.post('/messenger/api/v1/users/login')
 async def valid_login(user: str = None, pwd: str = None):
     # Returns true if user and pwd credentials are correct
 
@@ -76,7 +70,7 @@ async def valid_login(user: str = None, pwd: str = None):
     return result != None
 
 
-@app.post('/api/v1/messenger/messages/add')
+@app.post('/messenger/api/v1/messages/add')
 async def add_message(frm: str = None, to: str = None, msg: str = None):
     # Add a new message with ids of from and to. Also the current time
 
@@ -96,7 +90,7 @@ async def add_message(frm: str = None, to: str = None, msg: str = None):
     return 'addedMessage'
 
 
-@app.post('/api/v1/messenger/users/find')
+@app.post('/messenger/api/v1/users/find')
 async def search_users(user: str = None):
     # Returns users which contain the user str
 
@@ -117,7 +111,7 @@ async def search_users(user: str = None):
     return users
 
 
-@app.get('/api/v1/messenger/messages/{userId}')
+@app.post('/messenger/api/v1/messages/{userId}')
 async def fetch_messages(userId: int = -1):
     # Returns messages which were sent to or from userId
 
