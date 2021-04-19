@@ -24,7 +24,7 @@ async def add_user(user: str = None, pwd: str = None):
     # Add a new user to UsersAuth database with passed username and sha256 encrypted password
 
     if user == None or pwd == None:
-        return 'user or pwd missing'
+        return 'user/pwdMissing'
 
     exists = await valid_username(user)
 
@@ -47,7 +47,7 @@ async def valid_username(user: str = None):
     # Returns true if user exists
 
     if user == None:
-        return 'user missing'
+        return 'userMissing'
 
     appCursor = appDb.cursor()
 
@@ -64,7 +64,7 @@ async def valid_login(user: str = None, pwd: str = None):
     # Returns true if user and pwd credentials are correct
 
     if user == None or pwd == None:
-        return 'user or pwd missing'
+        return 'user/pwdMissing'
 
     appCursor = appDb.cursor()
 
@@ -81,7 +81,7 @@ async def add_message(frm: str = None, to: str = None, msg: str = None):
     # Add a new message with ids of from and to. Also the current time
 
     if frm == None or to == None or msg == None:
-        return 'frm, to or msg missing'
+        return 'frm/to/msgMissing'
 
     appCursor = appDb.cursor()
 
@@ -94,6 +94,27 @@ async def add_message(frm: str = None, to: str = None, msg: str = None):
     appDb.commit()
 
     return 'addedMessage'
+
+
+@app.post('/api/v1/messenger/users/find')
+async def search_users(user: str = None):
+    # Returns users which contain the user str
+
+    if user == None:
+        return 'userMissing'
+
+    appCursor = appDb.cursor()
+
+    sql = "SELECT username FROM UsersAuth WHERE username LIKE '%" + user + "%'"
+    appCursor.execute(sql)
+    result = appCursor.fetchall()
+
+    users = []
+
+    for x in result:
+        users.append(x[0])
+
+    return users
 
 
 def sha256(hash: str):
