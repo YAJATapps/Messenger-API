@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI
 import hashlib
 import mysql.connector
+import time
 
 app = FastAPI()
 
@@ -33,7 +34,27 @@ async def add_user(user: str = None, pwd: str = None):
 
     appDb.commit()
 
-    return 'added'
+    return 'addedUser'
+
+
+@app.get('/api/v1/messenger/messages/add')
+async def add_message(frm: str = None, to: str = None, msg: str = None):
+    # Add a new message with ids of from and to. Also the current time
+
+    if frm == None or to == None or msg == None:
+        return 'frm, to or msg missing'
+
+    appCursor = appDb.cursor()
+
+    currentTime = time.strftime('%Y-%m-%d %H:%M:%S')
+
+    sql = "INSERT INTO Messages (msgFrom, msgTo, message, time) VALUES (%s, %s, %s, %s)"
+    val = (int(frm), int(to), msg, currentTime)
+    appCursor.execute(sql, val)
+
+    appDb.commit()
+
+    return 'addedMessage'
 
 
 def sha256(hash: str):
