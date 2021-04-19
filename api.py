@@ -87,7 +87,7 @@ async def add_message(frm: str = None, to: str = None, msg: str = None):
 
     currentTime = time.strftime('%Y-%m-%d %H:%M:%S')
 
-    sql = "INSERT INTO Messages (msgFrom, msgTo, message, time) VALUES (%s, %s, %s, %s)"
+    sql = "INSERT INTO Messages (msgFrom, msgTo, message, msgTime) VALUES (%s, %s, %s, %s)"
     val = (int(frm), int(to), msg, currentTime)
     appCursor.execute(sql, val)
 
@@ -115,6 +115,30 @@ async def search_users(user: str = None):
         users.append(x[0])
 
     return users
+
+
+@app.get('/api/v1/messenger/messages/{userId}')
+async def fetch_messages(userId: int = -1):
+    # Returns messages which were sent to or from userId
+
+    if userId == -1:
+        return 'idMissing'
+
+    appCursor = appDb.cursor()
+
+    sql = "SELECT * FROM Messages WHERE msgFrom=%s OR msgTo=%s ORDER BY msgTime DESC"
+    val = (userId, userId)
+    appCursor.execute(sql, val)
+
+    result = appCursor.fetchall()
+
+    messages = []
+
+    # Return the array with an additional parameter of sent
+    for x in result:
+        messages.append([x[0], x[1], x[2], x[3], x[4], x[1] == userId])
+
+    return messages
 
 
 def sha256(hash: str):
