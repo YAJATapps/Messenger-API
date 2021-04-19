@@ -37,6 +37,23 @@ async def add_user(user: str = None, pwd: str = None):
     return 'addedUser'
 
 
+@app.post('/api/v1/messenger/users/login')
+async def valid_login(user: str = None, pwd: str = None):
+    # Returns true if user and pwd credentials are correct
+
+    if user == None or pwd == None:
+        return 'user or pwd missing'
+
+    appCursor = appDb.cursor()
+
+    sql = "SELECT * FROM UsersAuth WHERE username=%s AND password=%s"
+    val = (user, sha256(pwd))
+    appCursor.execute(sql, val)
+    result = appCursor.fetchone()
+
+    return result != None
+
+
 @app.post('/api/v1/messenger/messages/add')
 async def add_message(frm: str = None, to: str = None, msg: str = None):
     # Add a new message with ids of from and to. Also the current time
