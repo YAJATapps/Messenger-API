@@ -26,15 +26,37 @@ async def add_user(user: str = None, pwd: str = None):
     if user == None or pwd == None:
         return 'user or pwd missing'
 
+    exists = await valid_username(user)
+
+    if exists:
+        return 'alreadyExists'
+    else:
+        appCursor = appDb.cursor()
+
+        sql = "INSERT INTO UsersAuth (username, password) VALUES (%s, %s)"
+        val = (user, sha256(pwd))
+        appCursor.execute(sql, val)
+
+        appDb.commit()
+
+        return 'addedUser'
+
+
+@app.post('/api/v1/messenger/users/user')
+async def valid_username(user: str = None):
+    # Returns true if user exists
+
+    if user == None:
+        return 'user missing'
+
     appCursor = appDb.cursor()
 
-    sql = "INSERT INTO UsersAuth (username, password) VALUES (%s, %s)"
-    val = (user, sha256(pwd))
+    sql = "SELECT * FROM UsersAuth WHERE username=%s"
+    val = (user,)
     appCursor.execute(sql, val)
+    result = appCursor.fetchone()
 
-    appDb.commit()
-
-    return 'addedUser'
+    return result != None
 
 
 @app.post('/api/v1/messenger/users/login')
