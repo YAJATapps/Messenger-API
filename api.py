@@ -37,7 +37,7 @@ async def add_user(user: str = None, pwd: str = None):
     return 'addedUser'
 
 
-@app.get('/api/v1/messenger/messages/add')
+@app.post('/api/v1/messenger/messages/add')
 async def add_message(frm: str = None, to: str = None, msg: str = None):
     # Add a new message with ids of from and to. Also the current time
 
