@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI
 import hashlib
+from mangum import Mangum
 import mysql.connector
 import time
 
@@ -13,7 +14,7 @@ appDb = mysql.connector.connect(
     database=os.environ['DB_NAME']
 )
 
-@app.post('/messenger/api/v1/users/add')
+@app.post('/api/v1/users/add')
 async def add_user(user: str = None, pwd: str = None):
     # Add a new user to UsersAuth database with passed username and sha256 encrypted password
 
@@ -36,7 +37,7 @@ async def add_user(user: str = None, pwd: str = None):
         return 'addedUser'
 
 
-@app.post('/messenger/api/v1/users/user')
+@app.post('/api/v1/users/user')
 async def valid_username(user: str = None):
     # Returns true if user exists
 
@@ -53,7 +54,7 @@ async def valid_username(user: str = None):
     return result != None
 
 
-@app.post('/messenger/api/v1/users/login')
+@app.post('/api/v1/users/login')
 async def valid_login(user: str = None, pwd: str = None):
     # Returns true if user and pwd credentials are correct
 
@@ -70,7 +71,7 @@ async def valid_login(user: str = None, pwd: str = None):
     return result != None
 
 
-@app.post('/messenger/api/v1/messages/add')
+@app.post('/api/v1/messages/add')
 async def add_message(frm: str = None, to: str = None, msg: str = None):
     # Add a new message with ids of from and to. Also the current time
 
@@ -90,7 +91,7 @@ async def add_message(frm: str = None, to: str = None, msg: str = None):
     return 'addedMessage'
 
 
-@app.post('/messenger/api/v1/users/find')
+@app.post('/api/v1/users/find')
 async def search_users(user: str = None):
     # Returns users which contain the user str
 
@@ -111,7 +112,7 @@ async def search_users(user: str = None):
     return users
 
 
-@app.post('/messenger/api/v1/messages/{userId}')
+@app.post('/api/v1/messages/{userId}')
 async def fetch_messages(userId: int = -1):
     # Returns messages which were sent to or from userId
 
@@ -139,3 +140,6 @@ def sha256(hash: str):
     # Util function to return sha256 hash of the passed argument
 
     return hashlib.sha256(hash.encode()).hexdigest()
+
+
+handler = Mangum(app)
