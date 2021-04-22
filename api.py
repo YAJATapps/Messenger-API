@@ -147,7 +147,7 @@ async def fetch_messages(userId: int = -1):
 
     # Return the array with an additional parameter of sent
     for x in result:
-        messages.append([x[0], x[1], x[2], x[3], x[4], x[1] == userId])
+        messages.append({"msg": x[3], "sent": x[1] == userId})
 
     return messages
 
