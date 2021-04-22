@@ -29,6 +29,7 @@ appDb = mysql.connector.connect(
     database=os.environ['DB_NAME']
 )
 
+
 @app.post('/api/v1/users/add')
 async def add_user(user: str = None, pwd: str = None):
     # Add a new user to UsersAuth database with passed username and sha256 encrypted password
@@ -115,14 +116,14 @@ async def search_users(user: str = None):
 
     appCursor = appDb.cursor()
 
-    sql = "SELECT username FROM UsersAuth WHERE username LIKE '%" + user + "%'"
+    sql = "SELECT id, username FROM UsersAuth WHERE username LIKE '%" + user + "%'"
     appCursor.execute(sql)
     result = appCursor.fetchall()
 
     users = []
 
     for x in result:
-        users.append(x[0])
+        users.append({"id": x[0], "name": x[1]})
 
     return users
 
