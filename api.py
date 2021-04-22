@@ -1,11 +1,26 @@
 import os
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import hashlib
 from mangum import Mangum
 import mysql.connector
 import time
 
 app = FastAPI()
+
+origins = [
+    "https://messenger.yajatkumar.com",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 appDb = mysql.connector.connect(
     host=os.environ['DB_HOST'],
