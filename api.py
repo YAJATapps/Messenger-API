@@ -128,17 +128,17 @@ async def search_users(user: str = None):
     return users
 
 
-@app.post('/api/v1/messages/{userId}')
-async def fetch_messages(userId: int = -1):
+@app.post('/api/v1/messages/list')
+async def fetch_messages(frm: str = None, to: str = None):
     # Returns messages which were sent to or from userId
 
-    if userId == -1:
-        return 'idMissing'
+    if frm == None or to == None:
+        return 'frm/toMissing'
 
     appCursor = appDb.cursor()
 
-    sql = "SELECT * FROM Messages WHERE msgFrom=%s OR msgTo=%s ORDER BY msgTime DESC"
-    val = (userId, userId)
+    sql = "SELECT * FROM Messages WHERE (msgFrom=%s AND msgTo=%s) OR (msgFrom=%s AND msgTo=%s) ORDER BY msgTime DESC"
+    val = (frm, to, to, frm)
     appCursor.execute(sql, val)
 
     result = appCursor.fetchall()
@@ -147,7 +147,7 @@ async def fetch_messages(userId: int = -1):
 
     # Return the array with an additional parameter of sent
     for x in result:
-        messages.append({"msg": x[3], "sent": x[1] == userId})
+        messages.append({"msg": x[3], "sent": x[1] == frm})
 
     return messages
 
@@ -167,6 +167,29 @@ async def fetch_id(user: str = None):
     result = appCursor.fetchone()
 
     return result
+
+
+@app.post('/api/v1/users/contacts')
+async def fetch_contacts(user: str = None):
+    # Returns users who were contacted by user or the contacts who contacted user
+
+    if user == None:
+        return 'userMissing'
+
+    appCursor = appDb.cursor()
+
+    sql = "SELECT id, username FROM UsersAuth WHERE id IN (SELECT msgTo FROM Messages WHERE msgFrom=%s)\
+        OR id IN (SELECT msgFrom FROM Messages WHERE msgTo=%s)"
+    val = (user, user)
+    appCursor.execute(sql, val)
+    result = appCursor.fetchall()
+
+    contacts = []
+
+    for x in result:
+        contacts.append({"id": x[0], "name": x[1]})
+
+    return contacts
 
 
 def sha256(hash: str):
