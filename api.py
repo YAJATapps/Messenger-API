@@ -152,6 +152,23 @@ async def fetch_messages(userId: int = -1):
     return messages
 
 
+@app.post('/api/v1/users/id')
+async def fetch_id(user: str = None):
+    # Returns id from username
+
+    if user == None:
+        return 'userMissing'
+
+    appCursor = appDb.cursor()
+
+    sql = "SELECT id FROM UsersAuth WHERE username=%s"
+    val = (user,)
+    appCursor.execute(sql, val)
+    result = appCursor.fetchone()
+
+    return result
+
+
 def sha256(hash: str):
     # Util function to return sha256 hash of the passed argument
 
