@@ -137,7 +137,7 @@ async def fetch_messages(frm: str = None, to: str = None):
 
     appCursor = appDb.cursor()
 
-    sql = "SELECT * FROM Messages WHERE (msgFrom=%s AND msgTo=%s) OR (msgFrom=%s AND msgTo=%s) ORDER BY msgTime DESC"
+    sql = "SELECT * FROM Messages WHERE (msgFrom=%s AND msgTo=%s) OR (msgFrom=%s AND msgTo=%s) ORDER BY msgTime"
     val = (frm, to, to, frm)
     appCursor.execute(sql, val)
 
