@@ -135,6 +135,12 @@ async def fetch_messages(frm: str = None, to: str = None):
     if frm == None or to == None:
         return 'frm/toMissing'
 
+    if not frm.isdigit():
+        return 'frmNotInt'
+
+    if not to.isdigit():
+        return 'toNotInt'
+
     appCursor = appDb.cursor()
 
     sql = "SELECT * FROM Messages WHERE (msgFrom=%s AND msgTo=%s) OR (msgFrom=%s AND msgTo=%s) ORDER BY msgTime"
@@ -147,7 +153,7 @@ async def fetch_messages(frm: str = None, to: str = None):
 
     # Return the array with an additional parameter of sent
     for x in result:
-        messages.append({"msg": x[3], "sent": x[1] == frm})
+        messages.append({"msg": x[3], "sent": x[1] == int(frm)})
 
     return messages
 
