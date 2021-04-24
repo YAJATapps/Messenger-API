@@ -67,6 +67,8 @@ async def valid_username(user: str = None):
     appCursor.execute(sql, val)
     result = appCursor.fetchone()
 
+    appDb.commit()
+
     return result != None
 
 
@@ -83,6 +85,8 @@ async def valid_login(user: str = None, pwd: str = None):
     val = (user, sha256(pwd))
     appCursor.execute(sql, val)
     result = appCursor.fetchone()
+
+    appDb.commit()
 
     return result != None
 
@@ -120,6 +124,8 @@ async def search_users(user: str = None):
     appCursor.execute(sql)
     result = appCursor.fetchall()
 
+    appDb.commit()
+
     users = []
 
     for x in result:
@@ -149,6 +155,8 @@ async def fetch_messages(frm: str = None, to: str = None):
 
     result = appCursor.fetchall()
 
+    appDb.commit()
+
     messages = []
 
     # Return the array with an additional parameter of sent
@@ -172,6 +180,8 @@ async def fetch_id(user: str = None):
     appCursor.execute(sql, val)
     result = appCursor.fetchone()
 
+    appDb.commit()
+
     return result
 
 
@@ -190,6 +200,8 @@ async def fetch_contacts(user: str = None):
     appCursor.execute(sql, val)
     result = appCursor.fetchall()
 
+    appDb.commit()
+    
     contacts = []
 
     for x in result:
