@@ -2,7 +2,11 @@ Backend for messenger (https://github.com/YAJATapps/Messenger)
 
 Uses FastAPI framework.
 
-To deploy to AWS:
+1. Remove mangum to run locally.  
+  
+OR  
+  
+2. Deploy to AWS:
 
 # Setup virtualenv
 virtualenv -p python3.9 env
@@ -26,6 +30,4 @@ cd ../../../..
 zip -g ./function.zip -r api.py
 
 
-Deploy the function.zip to AWS
-
-Deployment method from (https://deadbearcode.com/simple-serverless-fastapi-with-aws-lambda/)
+Deploy the function.zip to AWS.
