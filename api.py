@@ -2,7 +2,6 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import hashlib
-from mangum import Mangum
 import mysql.connector
 import time
 
@@ -214,6 +213,3 @@ def sha256(hash: str):
     # Util function to return sha256 hash of the passed argument
 
     return hashlib.sha256(hash.encode()).hexdigest()
-
-
-handler = Mangum(app)
