@@ -10,6 +10,7 @@ app = FastAPI()
 origins = [
     "https://messenger.yajatkumar.com",
     "http://localhost:3000",
+    "http://messenger.local",
 ]
 
 app.add_middleware(
@@ -20,13 +21,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-appDb = mysql.connector.connect(
-    host=os.environ['DB_HOST'],
-    user=os.environ['DB_USER'],
-    password=os.environ['DB_PASS'],
-    database=os.environ['DB_NAME']
-)
+def get_connection():
+    appDb = mysql.connector.connect(
+        host=os.environ['DB_HOST'],
+        user=os.environ['DB_USER'],
+        password=os.environ['DB_PASS'],
+        database=os.environ['DB_NAME']
+    )
+    return appDb
 
 
 @app.post('/api/v1/users/add')
@@ -41,6 +43,7 @@ async def add_user(user: str = None, pwd: str = None):
     if exists:
         return 'alreadyExists'
     else:
+        appDb = get_connection()
         appCursor = appDb.cursor()
 
         sql = "INSERT INTO UsersAuth (username, password) VALUES (%s, %s)"
@@ -48,6 +51,8 @@ async def add_user(user: str = None, pwd: str = None):
         appCursor.execute(sql, val)
 
         appDb.commit()
+        appCursor.close()
+        appDb.close()
 
         return 'addedUser'
 
@@ -59,6 +64,7 @@ async def valid_username(user: str = None):
     if user == None:
         return 'userMissing'
 
+    appDb = get_connection()
     appCursor = appDb.cursor()
 
     sql = "SELECT * FROM UsersAuth WHERE username=%s"
@@ -67,6 +73,8 @@ async def valid_username(user: str = None):
     result = appCursor.fetchone()
 
     appDb.commit()
+    appCursor.close()
+    appDb.close()
 
     return result != None
 
@@ -78,6 +86,7 @@ async def valid_login(user: str = None, pwd: str = None):
     if user == None or pwd == None:
         return 'user/pwdMissing'
 
+    appDb = get_connection()
     appCursor = appDb.cursor()
 
     sql = "SELECT * FROM UsersAuth WHERE username=%s AND password=%s"
@@ -86,6 +95,8 @@ async def valid_login(user: str = None, pwd: str = None):
     result = appCursor.fetchone()
 
     appDb.commit()
+    appCursor.close()
+    appDb.close()
 
     return result != None
 
@@ -97,6 +108,7 @@ async def add_message(frm: str = None, to: str = None, msg: str = None):
     if frm == None or to == None or msg == None:
         return 'frm/to/msgMissing'
 
+    appDb = get_connection()
     appCursor = appDb.cursor()
 
     currentTime = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -106,6 +118,8 @@ async def add_message(frm: str = None, to: str = None, msg: str = None):
     appCursor.execute(sql, val)
 
     appDb.commit()
+    appCursor.close()
+    appDb.close()
 
     return 'addedMessage'
 
@@ -117,6 +131,7 @@ async def search_users(user: str = None):
     if user == None:
         return 'userMissing'
 
+    appDb = get_connection()
     appCursor = appDb.cursor()
 
     sql = "SELECT id, username FROM UsersAuth WHERE username LIKE '%" + user + "%'"
@@ -124,6 +139,8 @@ async def search_users(user: str = None):
     result = appCursor.fetchall()
 
     appDb.commit()
+    appCursor.close()
+    appDb.close()
 
     users = []
 
@@ -146,6 +163,7 @@ async def fetch_messages(frm: str = None, to: str = None):
     if not to.isdigit():
         return 'toNotInt'
 
+    appDb = get_connection()
     appCursor = appDb.cursor()
 
     sql = "SELECT * FROM Messages WHERE (msgFrom=%s AND msgTo=%s) OR (msgFrom=%s AND msgTo=%s) ORDER BY msgTime"
@@ -155,6 +173,8 @@ async def fetch_messages(frm: str = None, to: str = None):
     result = appCursor.fetchall()
 
     appDb.commit()
+    appCursor.close()
+    appDb.close()
 
     messages = []
 
@@ -172,6 +192,7 @@ async def fetch_id(user: str = None):
     if user == None:
         return 'userMissing'
 
+    appDb = get_connection()
     appCursor = appDb.cursor()
 
     sql = "SELECT id FROM UsersAuth WHERE username=%s"
@@ -180,6 +201,8 @@ async def fetch_id(user: str = None):
     result = appCursor.fetchone()
 
     appDb.commit()
+    appCursor.close()
+    appDb.close()
 
     return result
 
@@ -191,6 +214,7 @@ async def fetch_contacts(user: str = None):
     if user == None:
         return 'userMissing'
 
+    appDb = get_connection()
     appCursor = appDb.cursor()
 
     sql = "SELECT id, username FROM UsersAuth WHERE id IN (SELECT msgTo FROM Messages WHERE msgFrom=%s)\
@@ -200,6 +224,8 @@ async def fetch_contacts(user: str = None):
     result = appCursor.fetchall()
 
     appDb.commit()
+    appCursor.close()
+    appDb.close()
     
     contacts = []
 
@@ -211,5 +237,4 @@ async def fetch_contacts(user: str = None):
 
 def sha256(hash: str):
     # Util function to return sha256 hash of the passed argument
-
     return hashlib.sha256(hash.encode()).hexdigest()

@@ -8,6 +8,9 @@ OR
   
 2. Deploy to AWS:
 
+# Switch to main branch
+git checkout main
+
 # Setup virtualenv
 virtualenv -p python3.9 env
 
